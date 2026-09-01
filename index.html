@@ -5,44 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>セールタイムライン</title>
   <style>
-    body { font-family: sans-serif; margin: 20px; }
-    .tabs { margin-bottom: 20px; }
-    .tab-btn { padding: 10px 20px; margin-right: 5px; cursor: pointer; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; color: #333; }
+    h1 { font-size: 20px; margin-bottom: 20px; font-weight: bold; }
+    .tabs { margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn { padding: 8px 16px; border: none; background: #e4e7eb; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
     .tab-btn.active { background-color: #007bff; color: white; font-weight: bold; }
-    .timeline-container { border: 1px solid #ccc; padding: 10px; position: relative; overflow-x: auto; }
-    .timeline-row { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
-    .site-name { width: 120px; font-weight: bold; flex-shrink: 0; }
-    .bar-container { position: relative; flex-grow: 1; height: 40px; background: #f9f9f9; min-width: 600px; }
-    .sale-bar { position: absolute; height: 100%; background: #ffc107; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #333; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 5px; box-sizing: border-box; }
-    .date-axis { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: #666; border-top: 1px solid #aaa; padding-top: 5px; }
+    
+    /* スクロール可能なタイムライン構造 */
+    .timeline-outer { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+    .timeline-scroll { overflow-x: auto; width: 100%; position: relative; }
+    .timeline-grid { min-width: 1200px; position: relative; padding: 20px 0; }
+    
+    .timeline-row { display: flex; align-items: center; height: 50px; border-bottom: 1px solid #f0f2f5; position: relative; }
+    .site-name { width: 150px; font-weight: bold; font-size: 14px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 2; background: white; box-shadow: 5px 0 5px rgba(0,0,0,0.02); }
+    
+    .bar-container { position: relative; flex-grow: 1; height: 32px; margin-right: 15px; }
+    .sale-bar { position: absolute; height: 100%; background: #ffe082; border-left: 4px solid #ffb300; display: flex; align-items: center; font-size: 12px; color: #5d4037; border-radius: 0 4px 4px 0; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    
+    /* 日付の目盛り軸 */
+    .date-axis { display: flex; border-top: 1px solid #ddd; background: #fafbfc; padding-left: 15px; }
+    .axis-label-space { width: 150px; flex-shrink: 0; }
+    .axis-labels { display: flex; justify-content: space-between; flex-grow: 1; margin-right: 15px; font-size: 11px; color: #777; padding: 8px 0; }
   </style>
 </head>
 <body>
 
-  <h1>セールスケジュール（タイムライン）</h1>
+  <h1>📅 セールスケジュール（タイムライン）</h1>
 
   <div class="tabs" id="tabsContainer">
     <button class="tab-btn active" onclick="filterCategory('すべて')">すべて</button>
   </div>
 
-  <div class="timeline-container" id="timelineContainer">
-    データの読み込み中...
+  <div class="timeline-outer">
+    <div class="timeline-scroll">
+      <div class="timeline-grid" id="timelineContainer">
+        データの読み込み中...
+      </div>
+    </div>
   </div>
 
   <script>
-    // あなたのGASウェブアプリURL（末尾は/exec）
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyjfcDxaBkvVhvCvvpMn9xUPm3soLLfAkizuXg0lOhimXaq0q625a5dCueRxhpaniJm/exec';
+    const API_URL = 'https://google.com';
 
     let allSalesData = [];
     let categories = new Set(['すべて']);
 
-    // 通常のfetch通信による確実なデータ取得
     async function fetchSalesData() {
       try {
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) throw new Error('データ取得に失敗しました');
         allSalesData = await response.json();
-
+        
         allSalesData.forEach(sale => {
           if (sale.category) categories.add(sale.category);
         });
@@ -50,7 +63,7 @@
         renderTabs();
         renderTimeline(allSalesData);
       } catch (error) {
-        document.getElementById('timelineContainer').innerText = 'データの読み込みに失敗しました。詳細: ' + error.message;
+        document.getElementById('timelineContainer').innerText = 'データの読み込みに失敗しました。';
         console.error(error);
       }
     }
@@ -71,10 +84,7 @@
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       if (clickedBtn) clickedBtn.classList.add('active');
 
-      const filtered = category === 'すべて'
-        ? allSalesData
-        : allSalesData.filter(sale => sale.category === category);
-
+      const filtered = category === 'すべて' ? allSalesData : allSalesData.filter(sale => sale.category === category);
       renderTimeline(filtered);
     }
 
@@ -83,21 +93,30 @@
       container.innerHTML = '';
 
       if (sales.length === 0) {
-        container.innerText = '該当するセール情報はありません。';
+        container.innerHTML = '<div style="padding:20px;color:#999;">該当するセール情報はありません。</div>';
         return;
       }
 
-      const times = sales.flatMap(s => [new Date(s.startTime).getTime(), new Date(s.endTime).getTime()]);
-      const minTime = Math.min(...times);
-      const maxTime = Math.max(...times);
+      // 今日を基準に、前後14日間（合計28日間）の固定幅タイムラインを構築
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const minTime = today.getTime() - (14 * 24 * 60 * 60 * 1000); // 14日前
+      const maxTime = today.getTime() + (14 * 24 * 60 * 60 * 1000); // 14日後
       const totalDuration = maxTime - minTime;
 
       sales.forEach(sale => {
         const start = new Date(sale.startTime).getTime();
         const end = new Date(sale.endTime).getTime();
 
-        const leftPercent = totalDuration > 0 ? ((start - minTime) / totalDuration) * 100 : 0;
-        const widthPercent = totalDuration > 0 ? ((end - start) / totalDuration) * 100 : 100;
+        // 期間外のセールはグレーアウトまたは非表示
+        if (end < minTime || start > maxTime) return;
+
+        // クリップ処理（表示領域に収める）
+        const displayStart = Math.max(start, minTime);
+        const displayEnd = Math.min(end, maxTime);
+
+        const leftPercent = ((displayStart - minTime) / totalDuration) * 100;
+        const widthPercent = ((displayEnd - displayStart) / totalDuration) * 100;
 
         const row = document.createElement('div');
         row.className = 'timeline-row';
@@ -113,8 +132,11 @@
         bar.className = 'sale-bar';
         bar.style.left = `${leftPercent}%`;
         bar.style.width = `${widthPercent}%`;
-        bar.innerText = sale.memo ? `${sale.category} : ${sale.memo}` : sale.category;
-        bar.title = `${sale.siteName} (${sale.startTime} ～ ${sale.endTime})`;
+        
+        // ラベルテキスト
+        const formatD = (d) => `${d.getMonth()+1}/${d.getDate()}`;
+        bar.innerText = `${sale.memo || sale.category} (${formatD(new Date(start))}〜${formatD(new Date(end))})`;
+        bar.title = `${sale.siteName} : ${sale.memo || ''}`;
 
         barContainer.appendChild(bar);
         row.appendChild(nameDiv);
@@ -122,13 +144,20 @@
         container.appendChild(row);
       });
 
+      // 目盛り（開始、今日、終了）の追加
       const axis = document.createElement('div');
       axis.className = 'date-axis';
-      axis.innerHTML = `<span>開始: ${new Date(minTime).toLocaleString()}</span><span>終了: ${new Date(maxTime).toLocaleString()}</span>`;
+      axis.innerHTML = `
+        <div class="axis-label-space"></div>
+        <div class="axis-labels">
+          <span>⬅️ 14日前 (${new Date(minTime).toLocaleDateString()})</span>
+          <span style="color:#007bff;font-weight:bold;">📍 今日 (${new Date().toLocaleDateString()})</span>
+          <span>14日後 (${new Date(maxTime).toLocaleDateString()}) ➡️</span>
+        </div>
+      `;
       container.appendChild(axis);
     }
 
-    // 起動
     fetchSalesData();
   </script>
 </body>
