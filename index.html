@@ -12,24 +12,26 @@
     .tab-btn { padding: 6px 14px; border: 1px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-size: 13px; color: #666; font-weight: 500; transition: all 0.2s; }
     .tab-btn.active { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,123,255,0.2); }
     
-    .timeline-outer { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eaeaea; }
+    /* 全体の最大幅を800pxに制限し、はみ出さないよう中央配置 */
+    .timeline-outer { max-width: 800px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eaeaea; margin: 0 auto; }
     .timeline-scroll { overflow-x: auto; width: 100%; position: relative; }
     
-    /* 横幅を縮小 (800px) してセール期間が短くても見やすく調整 */
-    .timeline-grid { min-width: 800px; position: relative; padding: 15px 0 0 0; }
+    /* 横幅を800pxに「完全固定」し、広がりすぎるのを防止 */
+    .timeline-grid { width: 800px; position: relative; padding: 15px 0 0 0; box-sizing: border-box; }
     
     /* 1日ごとのグリッド背景線 */
-    .grid-bg-lines { position: absolute; top: 0; bottom: 45px; left: 120px; right: 10px; pointer-events: none; }
+    .grid-bg-lines { position: absolute; top: 0; bottom: 45px; left: 120px; right: 15px; pointer-events: none; }
     .bg-line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,0.04); }
     
-    /* 今日の縦線（1pxの極細線） */
+    /* 今日の極細縦線（位置ズレを完全に修正するため、left120px基点から右側エリア内のみに制限） */
     .today-line { position: absolute; top: 0; bottom: 45px; width: 1px; background: #ff4757; z-index: 3; pointer-events: none; }
     
-    .timeline-row { display: flex; align-items: center; height: 48px; position: relative; z-index: 2; }
+    .timeline-row { display: flex; align-items: center; height: 48px; position: relative; z-index: 2; width: 100%; }
     .timeline-row:nth-child(even) { background: rgba(0,0,0,0.01); }
     .site-name { width: 120px; font-weight: bold; font-size: 13px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 4; background: white; border-right: 1px solid #eee; height: 100%; display: flex; align-items: center; }
     
-    .bar-container { position: relative; flex-grow: 1; height: 28px; margin: 0 10px; }
+    /* 右側バーエリアの余白（right: 15px）をグリッド線と完全に一致させる */
+    .bar-container { position: relative; flex-grow: 1; height: 28px; margin-left: 0; margin-right: 15px; }
     
     .sale-bar { position: absolute; height: 100%; display: flex; align-items: center; font-size: 11px; border-radius: 6px; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.04); z-index: 2; }
     
@@ -38,9 +40,9 @@
     .bar-default { background: #dfe6e9; color: #2d3436; border-left: 4px solid #b2bec3; }
     
     /* 日付の目盛り軸 */
-    .date-axis { display: flex; border-top: 1px solid #eee; background: #fcfcfc; position: relative; z-index: 4; }
+    .date-axis { display: flex; border-top: 1px solid #eee; background: #fcfcfc; position: relative; z-index: 4; width: 100%; }
     .axis-label-space { width: 120px; flex-shrink: 0; border-right: 1px solid #eee; }
-    .axis-labels-container { position: relative; flex-grow: 1; height: 45px; margin: 0 10px; }
+    .axis-labels-container { position: relative; flex-grow: 1; height: 45px; margin-left: 0; margin-right: 15px; }
     .axis-tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #888; font-weight: 500; text-align: center; line-height: 1.2; padding-top: 4px; }
     .axis-tick::before { content: ''; width: 1px; height: 4px; background: #ddd; position: absolute; top: 0; left: 50%; }
     .axis-tick.is-today { color: #ff4757; font-weight: bold; }
@@ -64,8 +66,7 @@
   </div>
 
   <script>
-    // 指定された固定URLを適用
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzPP2XcjqMJwhHn8TcNLNlYdnd96AI94ZbbgQvr4M06sZwPAoXtHpRq-ZqaLjq3x3E/exec';
+    const API_URL = 'https://google.com';
 
     let allSalesData = [];
     let categories = new Set(['すべて']);
@@ -133,10 +134,12 @@
         bgContainer.appendChild(bgLine);
       }
 
+      // 【位置ズレ修正】バー表示エリア（右側の余白等）の縮尺計算と完全に一致させた正確な配置
       const todayPercent = ((today.getTime() - minTime) / totalDuration) * 100;
       const tLine = document.createElement('div');
       tLine.className = 'today-line';
-      tLine.style.left = `calc(120px + ${todayPercent}% - 10px)`;
+      // 120px(名前枠) + 残り幅の中での位置パーセンテージに完全連動
+      tLine.style.left = `calc(120px + (${todayPercent}% * (800 - 135) / 100))`;
       container.appendChild(tLine);
 
       sales.forEach(sale => {
@@ -200,7 +203,6 @@
         tick.className = 'axis-tick' + (i === 0 ? ' is-today' : '');
         tick.style.left = `${percent}%`;
         
-        // 文字の重なりを防ぐため、月と日を改行(縦並び)で配置
         if (i === 0) {
           tick.innerHTML = '<span style="margin-top:4px;">今日</span>';
         } else {
@@ -216,11 +218,3 @@
     function scrollToToday() {
       const scrollArea = document.getElementById('timelineScroll');
       const todayPercent = (today.getTime() - minTime) / totalDuration;
-      const scrollTarget = (scrollArea.scrollWidth - 120) * todayPercent - (scrollArea.clientWidth / 2) + 120;
-      scrollArea.scrollLeft = Math.max(0, scrollTarget);
-    }
-
-    fetchSalesData();
-  </script>
-</body>
-</html>
