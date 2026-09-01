@@ -1,0 +1,40 @@
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; color: #333; }
+h1 { font-size: 18px; margin: 10px 0 20px 0; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+
+.tabs { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tab-btn { padding: 6px 14px; border: 1px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-size: 13px; color: #666; font-weight: 500; transition: all 0.2s; }
+.tab-btn.active { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,123,255,0.2); }
+
+.timeline-outer { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eaeaea; }
+.timeline-scroll { overflow-x: auto; width: 100%; position: relative; }
+
+.timeline-grid { width: 820px; position: relative; padding-top: 15px; box-sizing: border-box; }
+
+.grid-bg-lines { position: absolute; top: 0; bottom: 55px; left: 120px; right: 0; pointer-events: none; }
+.bg-line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,0.05); }
+
+.today-line { position: absolute; top: 0; bottom: 55px; width: 1px; background: #ff4757; z-index: 3; pointer-events: none; }
+
+.timeline-row { display: flex; align-items: center; height: 48px; position: relative; z-index: 2; width: 100%; }
+.timeline-row:nth-child(even) { background: rgba(0,0,0,0.01); }
+.site-name { width: 120px; font-weight: bold; font-size: 13px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 4; background: white; border-right: 1px solid #eee; height: 100%; display: flex; align-items: center; }
+
+.bar-container { position: relative; width: 700px; height: 28px; flex-shrink: 0; }
+
+.sale-bar { position: absolute; height: 100%; display: flex; align-items: center; font-size: 11px; border-radius: 6px; padding: 0 8px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.04); z-index: 2; }
+
+.bar-総合ec { background: #ffeaa7; color: #d63031; border-left: 4px solid #ffb300; }
+.bar-コスメ { background: #fdcb6e; color: #2d3436; border-left: 4px solid #e17055; }
+.bar-default { background: #dfe6e9; color: #2d3436; border-left: 4px solid #b2bec3; }
+
+.date-axis { display: flex; border-top: 1px solid #eee; background: #fcfcfc; position: relative; z-index: 4; width: 100%; }
+.axis-label-space { width: 120px; flex-shrink: 0; border-right: 1px solid #eee; }
+.axis-labels-container { position: relative; width: 700px; height: 55px; flex-shrink: 0; }
+
+.axis-tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 25px; }
+.axis-tick::before { content: ''; width: 1px; height: 4px; background: #ddd; position: absolute; top: 0; left: 50%; }
+
+.axis-tick span { display: block; font-size: 10px; color: #666; font-weight: 500; white-space: nowrap; transform: rotate(45deg); transform-origin: top left; margin-top: 8px; margin-left: 10px; }
+
+.axis-tick.is-today::before { background: #ff4757; height: 6px; }
+.axis-tick.is-today span { color: #ff4757; font-weight: bold; }
