@@ -5,37 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>セールタイムライン</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; color: #333; }
-    h1 { font-size: 20px; margin-bottom: 20px; font-weight: bold; }
-    .tabs { margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .tab-btn { padding: 8px 16px; border: none; background: #e4e7eb; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-    .tab-btn.active { background-color: #007bff; color: white; font-weight: bold; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; color: #333; }
+    h1 { font-size: 18px; margin: 10px 0 20px 0; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     
-    .timeline-outer { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+    /* タブ */
+    .tabs { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn { padding: 6px 14px; border: 1px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-size: 13px; color: #666; font-weight: 500; transition: all 0.2s; }
+    .tab-btn.active { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,123,255,0.2); }
+    
+    /* タイムラインコンテナ */
+    .timeline-outer { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eaeaea; }
     .timeline-scroll { overflow-x: auto; width: 100%; position: relative; }
-    .timeline-grid { min-width: 1200px; position: relative; padding: 20px 0; }
+    .timeline-grid { min-width: 1000px; position: relative; padding: 15px 0 0 0; }
     
-    .timeline-row { display: flex; align-items: center; height: 50px; border-bottom: 1px solid #f0f2f5; position: relative; }
-    .site-name { width: 150px; font-weight: bold; font-size: 14px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 2; background: white; box-shadow: 5px 0 5px rgba(0,0,0,0.02); }
+    /* 今日の縦線インジケーター */
+    .today-line { position: absolute; top: 0; bottom: 40px; width: 2px; background: #ff4757; z-index: 1; pointer-events: none; border-left: 1px dashed rgba(255,71,87,0.5); }
     
-    .bar-container { position: relative; flex-grow: 1; height: 32px; margin-right: 15px; }
-    .sale-bar { position: absolute; height: 100%; background: #ffe082; border-left: 4px solid #ffb300; display: flex; align-items: center; font-size: 12px; color: #5d4037; border-radius: 0 4px 4px 0; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    /* 各行のレイアウト */
+    .timeline-row { display: flex; align-items: center; height: 48px; position: relative; }
+    .timeline-row:nth-child(even) { background: #fafafa; }
+    .site-name { width: 120px; font-weight: bold; font-size: 13px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 2; background: white; border-right: 1px solid #eee; height: 100%; display: flex; align-items: center; }
     
-    .date-axis { display: flex; border-top: 1px solid #ddd; background: #fafbfc; padding-left: 15px; }
-    .axis-label-space { width: 150px; flex-shrink: 0; }
-    .axis-labels { display: flex; justify-content: space-between; flex-grow: 1; margin-right: 15px; font-size: 11px; color: #777; padding: 8px 0; }
+    .bar-container { position: relative; flex-grow: 1; height: 28px; margin: 0 10px; }
+    
+    /* セールバー基本装飾 */
+    .sale-bar { position: absolute; height: 100%; display: flex; align-items: center; font-size: 11px; border-radius: 6px; padding: 0 10px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    
+    /* カテゴリ別の配色定義 */
+    .bar-総合ec { background: #ffeaa7; color: #d63031; border-left: 4px solid #ffb300; }
+    .bar-コスメ { background: #fdcb6e; color: #2d3436; border-left: 4px solid #e17055; }
+    .bar-default { background: #dfe6e9; color: #2d3436; border-left: 4px solid #b2bec3; }
+    
+    /* 日付の目盛り軸 */
+    .date-axis { display: flex; border-top: 1px solid #eee; background: #fcfcfc; position: relative; }
+    .axis-label-space { width: 120px; flex-shrink: 0; border-right: 1px solid #eee; }
+    .axis-labels-container { position: relative; flex-grow: 1; height: 35px; margin: 0 10px; }
+    .axis-tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #888; }
+    .axis-tick::before { content: ''; width: 1px; height: 5px; background: #ccc; margin-bottom: 4px; }
+    .axis-tick.is-today { color: #ff4757; font-weight: bold; }
+    .axis-tick.is-today::before { background: #ff4757; height: 8px; }
   </style>
 </head>
 <body>
 
-  <h1>📅 セールスケジュール（タイムライン）</h1>
+  <h1>📅 セールカレンダータイムライン</h1>
 
+  <!-- カテゴリタブ -->
   <div class="tabs" id="tabsContainer">
     <button class="tab-btn active" onclick="filterCategory('すべて')">すべて</button>
   </div>
 
+  <!-- メインタイムライン -->
   <div class="timeline-outer">
-    <div class="timeline-scroll">
+    <div class="timeline-scroll" id="timelineScroll">
       <div class="timeline-grid" id="timelineContainer">
         データの読み込み中...
       </div>
@@ -43,15 +65,22 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzPP2XcjqMJwhHn8TcNLNlYdnd96AI94ZbbgQvr4M06sZwPAoXtHpRq-ZqaLjq3x3E/exec';
+    const API_URL = 'https://google.com';
 
     let allSalesData = [];
     let categories = new Set(['すべて']);
 
+    // タイムラインの表示期間定義 (今日を中心に前後14日間)
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const minTime = today.getTime() - (14 * 24 * 60 * 60 * 1000);
+    const maxTime = today.getTime() + (14 * 24 * 60 * 60 * 1000);
+    const totalDuration = maxTime - minTime;
+
     async function fetchSalesData() {
       try {
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('データ取得に失敗しました');
+        if (!response.ok) throw new Error('データ取得失敗');
         allSalesData = await response.json();
         
         allSalesData.forEach(sale => {
@@ -60,8 +89,9 @@
 
         renderTabs();
         renderTimeline(allSalesData);
+        scrollToToday();
       } catch (error) {
-        document.getElementById('timelineContainer').innerText = 'データの読み込みに失敗しました。詳細: ' + error.message;
+        document.getElementById('timelineContainer').innerText = 'データの読み込みに失敗しました。';
         console.error(error);
       }
     }
@@ -90,25 +120,20 @@
       const container = document.getElementById('timelineContainer');
       container.innerHTML = '';
 
-      if (sales.length === 0) {
-        container.innerHTML = '<div style="padding:20px;color:#999;">該当するセール情報はありません。</div>';
-        return;
-      }
+      // 今日の縦線を追加
+      const todayPercent = ((today.getTime() - minTime) / totalDuration) * 100;
+      const tLine = document.createElement('div');
+      tLine.className = 'today-line';
+      tLine.style.left = `calc(120px + ${todayPercent}% - 10px)`; // 名前の幅調整
+      container.appendChild(tLine);
 
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const minTime = today.getTime() - (14 * 24 * 60 * 60 * 1000);
-      const maxTime = today.getTime() + (14 * 24 * 60 * 60 * 1000);
-      const totalDuration = maxTime - minTime;
-
+      // セール行の描画
       sales.forEach(sale => {
         if (!sale.startTime || !sale.endTime) return;
-        
         const start = new Date(sale.startTime).getTime();
         const end = new Date(sale.endTime).getTime();
 
-        if (isNaN(start) || isNaN(end)) return;
-        if (end < minTime || start > maxTime) return;
+        if (isNaN(start) || isNaN(end) || end < minTime || start > maxTime) return;
 
         const displayStart = Math.max(start, minTime);
         const displayEnd = Math.min(end, maxTime);
@@ -127,12 +152,14 @@
         barContainer.className = 'bar-container';
 
         const bar = document.createElement('div');
-        bar.className = 'sale-bar';
+        // カテゴリ別カラークラス設定
+        const catClass = sale.category === '総合EC' ? 'bar-総合ec' : (sale.category === 'コスメ' ? 'bar-コスメ' : 'bar-default');
+        bar.className = `sale-bar ${catClass}`;
         bar.style.left = `${leftPercent}%`;
         bar.style.width = `${widthPercent}%`;
         
-        const formatD = (d) => `${d.getMonth()+1}/${d.getDate()}`;
-        bar.innerText = `${sale.memo || sale.category} (${formatD(new Date(start))}〜${formatD(new Date(end))})`;
+        const formatM_D = (d) => `${d.getMonth()+1}/${d.getDate()}`;
+        bar.innerText = `${sale.memo || sale.category} (${formatM_D(new Date(start))}〜${formatM_D(new Date(end))})`;
         bar.title = `${sale.siteName} : ${sale.memo || ''}`;
 
         barContainer.appendChild(bar);
@@ -141,17 +168,43 @@
         container.appendChild(row);
       });
 
+      renderDateAxis(container);
+    }
+
+    // 目盛り（日付軸）の生成
+    function renderDateAxis(container) {
       const axis = document.createElement('div');
       axis.className = 'date-axis';
-      axis.innerHTML = `
-        <div class="axis-label-space"></div>
-        <div class="axis-labels">
-          <span>⬅️ 14日前 (${new Date(minTime).toLocaleDateString()})</span>
-          <span style="color:#007bff;font-weight:bold;">📍 今日 (${new Date().toLocaleDateString()})</span>
-          <span>14日後 (${new Date(maxTime).toLocaleDateString()}) ➡️</span>
-        </div>
-      `;
+      
+      const space = document.createElement('div');
+      space.className = 'axis-label-space';
+      axis.appendChild(space);
+
+      const labelsContainer = document.createElement('div');
+      labelsContainer.className = 'axis-labels-container';
+
+      // 5日刻みで目盛りを配置
+      for (let i = -14; i <= 14; i += 5) {
+        const tickDate = new Date(today.getTime() + (i * 24 * 60 * 60 * 1000));
+        const percent = ((tickDate.getTime() - minTime) / totalDuration) * 100;
+        
+        const tick = document.createElement('div');
+        tick.className = 'axis-tick' + (i === 0 ? ' is-today' : '');
+        tick.style.left = `${percent}%`;
+        tick.innerHTML = `<span>${i === 0 ? '今日' : `${tickDate.getMonth()+1}/${tickDate.getDate()}`}</span>`;
+        labelsContainer.appendChild(tick);
+      }
+
+      axis.appendChild(labelsContainer);
       container.appendChild(axis);
+    }
+
+    // 自動で「今日」のライン位置までスクロールする処理
+    function scrollToToday() {
+      const scrollArea = document.getElementById('timelineScroll');
+      const todayPercent = (today.getTime() - minTime) / totalDuration;
+      const scrollTarget = (scrollArea.scrollWidth - 120) * todayPercent - (scrollArea.clientWidth / 2) + 120;
+      scrollArea.scrollLeft = Math.max(0, scrollTarget);
     }
 
     fetchSalesData();
