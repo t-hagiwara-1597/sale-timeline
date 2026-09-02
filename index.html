@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>セールタイムライン</title>
+  <title>セールタイムライン - CraftNexLab</title>
   <!-- パス解決を確実にするため相対パスでCSSを指定 -->
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -31,8 +31,8 @@
 
     const today = new Date();
     today.setHours(0,0,0,0);
-    
-    const DAY_WIDTH = 25; 
+
+    const DAY_WIDTH = 25;
     const ONE_DAY_MS = 24 * 60 * 60 * 1000;
     const minTime = today.getTime() - (14 * ONE_DAY_MS);
     const maxTime = today.getTime() + (14 * ONE_DAY_MS);
@@ -42,7 +42,7 @@
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error('データ取得失敗');
         allSalesData = await response.json();
-        
+
         allSalesData.forEach(sale => {
           if (sale.category) categories.add(sale.category);
         });
@@ -126,7 +126,7 @@
         bar.className = `sale-bar ${catClass}`;
         bar.style.left = `${leftPx}px`;
         bar.style.width = `${widthPx}px`;
-        
+
         const formatM_D = (d) => `${d.getMonth()+1}/${d.getDate()}`;
         bar.innerText = `${sale.memo || sale.category} (${formatM_D(new Date(start))}〜${formatM_D(new Date(end))})`;
         bar.title = `${sale.siteName} : ${sale.memo || ''}`;
@@ -143,7 +143,7 @@
     function renderDateAxis(container) {
       const axis = document.createElement('div');
       axis.className = 'date-axis';
-      
+
       const space = document.createElement('div');
       space.className = 'axis-label-space';
       axis.appendChild(space);
@@ -154,11 +154,11 @@
       for (let i = -14; i <= 14; i++) {
         const tickDate = new Date(today.getTime() + (i * ONE_DAY_MS));
         const leftPx = (i + 14) * DAY_WIDTH;
-        
+
         const tick = document.createElement('div');
         tick.className = 'axis-tick' + (i === 0 ? ' is-today' : '');
         tick.style.left = `${leftPx}px`;
-        
+
         if (i === 0) {
           tick.innerHTML = '<span>今日</span>';
         } else {
