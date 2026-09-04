@@ -1,40 +1,502 @@
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; color: #333; }
-h1 { font-size: 18px; margin: 10px 0 20px 0; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+/* ========================================
+   Sale Timeline
+   セールカレンダー用スタイル
+   ======================================== */
 
-.tabs { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
-.tab-btn { padding: 6px 14px; border: 1px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-size: 13px; color: #666; font-weight: 500; transition: all 0.2s; }
-.tab-btn.active { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,123,255,0.2); }
+/* ---------- 基本 ---------- */
 
-.timeline-outer { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eaeaea; }
-.timeline-scroll { overflow-x: auto; width: 100%; position: relative; }
+* {
+    box-sizing: border-box;
+}
 
-.timeline-grid { width: 820px; position: relative; padding-top: 15px; box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 24px;
+    background: #f5f7fa;
+    color: #2f3542;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        Meiryo,
+        sans-serif;
+    line-height: 1.5;
+}
 
-.grid-bg-lines { position: absolute; top: 0; bottom: 55px; left: 120px; right: 0; pointer-events: none; }
-.bg-line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,0.05); }
 
-.today-line { position: absolute; top: 0; bottom: 55px; width: 1px; background: #ff4757; z-index: 3; pointer-events: none; }
+/* ---------- タイトル ---------- */
 
-.timeline-row { display: flex; align-items: center; height: 48px; position: relative; z-index: 2; width: 100%; }
-.timeline-row:nth-child(even) { background: rgba(0,0,0,0.01); }
-.site-name { width: 120px; font-weight: bold; font-size: 13px; padding-left: 15px; box-sizing: border-box; flex-shrink: 0; z-index: 4; background: white; border-right: 1px solid #eee; height: 100%; display: flex; align-items: center; }
+h1 {
+    margin: 0 0 20px;
+    font-size: 22px;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #222831;
+}
 
-.bar-container { position: relative; width: 700px; height: 28px; flex-shrink: 0; }
 
-.sale-bar { position: absolute; height: 100%; display: flex; align-items: center; font-size: 11px; border-radius: 6px; padding: 0 8px; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.04); z-index: 2; }
+/* ---------- カテゴリタブ ---------- */
 
-.bar-総合ec { background: #ffeaa7; color: #d63031; border-left: 4px solid #ffb300; }
-.bar-コスメ { background: #fdcb6e; color: #2d3436; border-left: 4px solid #e17055; }
-.bar-default { background: #dfe6e9; color: #2d3436; border-left: 4px solid #b2bec3; }
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
 
-.date-axis { display: flex; border-top: 1px solid #eee; background: #fcfcfc; position: relative; z-index: 4; width: 100%; }
-.axis-label-space { width: 120px; flex-shrink: 0; border-right: 1px solid #eee; }
-.axis-labels-container { position: relative; width: 700px; height: 55px; flex-shrink: 0; }
+.tab-btn {
+    min-height: 36px;
+    padding: 7px 16px;
 
-.axis-tick { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 25px; }
-.axis-tick::before { content: ''; width: 1px; height: 4px; background: #ddd; position: absolute; top: 0; left: 50%; }
+    border: 1px solid #d9dee7;
+    border-radius: 18px;
 
-.axis-tick span { display: block; font-size: 10px; color: #666; font-weight: 500; white-space: nowrap; transform: rotate(45deg); transform-origin: top left; margin-top: 8px; margin-left: 10px; }
+    background: #ffffff;
+    color: #596273;
 
-.axis-tick.is-today::before { background: #ff4757; height: 6px; }
-.axis-tick.is-today span { color: #ff4757; font-weight: bold; }
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.tab-btn:hover {
+    border-color: #b8c2d1;
+    background: #f8fafc;
+}
+
+.tab-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.22);
+}
+
+
+/* ---------- タイムライン外枠 ---------- */
+
+.timeline-outer {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe4eb;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ---------- 横スクロール ---------- */
+
+.timeline-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    position: relative;
+
+    /*
+     * 横スクロールは意図的に維持。
+     * スマホでも29日分のタイムラインを確認できる。
+     */
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* ---------- タイムライン本体 ---------- */
+
+.timeline-grid {
+    width: 820px;
+    min-width: 820px;
+
+    position: relative;
+
+    padding-top: 12px;
+
+    box-sizing: border-box;
+}
+
+
+/* ---------- 背景の縦グリッド ---------- */
+
+.grid-bg-lines {
+    position: absolute;
+
+    top: 0;
+    bottom: 55px;
+
+    left: 120px;
+    right: 0;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+.bg-line {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    width: 1px;
+
+    background: #e9edf2;
+}
+
+
+/* ---------- 今日のライン ---------- */
+
+.today-line {
+    position: absolute;
+
+    top: 0;
+    bottom: 55px;
+
+    width: 2px;
+
+    background: #ef4444;
+
+    z-index: 3;
+
+    pointer-events: none;
+
+    opacity: 0.9;
+}
+
+
+/* ---------- 各サイトの行 ---------- */
+
+.timeline-row {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 52px;
+
+    position: relative;
+
+    z-index: 2;
+
+    border-bottom: none;
+}
+
+
+.timeline-row:nth-child(even) {
+    background: #fafbfd;
+}
+
+
+/* ---------- サイト名 ---------- */
+
+.site-name {
+    width: 120px;
+    min-width: 120px;
+
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-right: none;
+
+    color: #303846;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    line-height: 1.3;
+
+    z-index: 4;
+}
+
+.timeline-row:nth-child(even) .site-name {
+    background: #fafbfd;
+}
+
+
+/* ---------- セールバー領域 ---------- */
+
+.bar-container {
+    position: relative;
+
+    width: 700px;
+    min-width: 700px;
+
+    height: 32px;
+
+    flex-shrink: 0;
+}
+
+
+/* ---------- セールバー ---------- */
+
+.sale-bar {
+    position: absolute;
+
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 10px;
+
+    box-sizing: border-box;
+
+    border-radius: 5px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.10);
+
+    z-index: 2;
+
+    transition:
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.sale-bar:hover {
+    filter: brightness(0.98);
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.14);
+
+    z-index: 5;
+}
+
+
+/* ---------- 総合EC ---------- */
+
+.bar-総合ec {
+    background: #fff1b8;
+
+    color: #9f3a38;
+
+    border-left: 4px solid #f59e0b;
+}
+
+
+/* ---------- コスメ ---------- */
+
+.bar-コスメ {
+    background: #ffe0b2;
+
+    color: #7c3f24;
+
+    border-left: 4px solid #e67e22;
+}
+
+
+/* ---------- その他 ---------- */
+
+.bar-default {
+    background: #e7ebef;
+
+    color: #3f4854;
+
+    border-left: 4px solid #9aa5b1;
+}
+
+
+/* ---------- 日付軸 ---------- */
+
+.date-axis {
+    display: flex;
+
+    width: 100%;
+
+    position: relative;
+
+    z-index: 4;
+
+    background: #f8fafc;
+
+    border-top: none;
+}
+
+
+/* ---------- 左側の空白 ---------- */
+
+.axis-label-space {
+    width: 120px;
+    min-width: 120px;
+
+    flex-shrink: 0;
+
+    background: #f8fafc;
+
+    border-right: none;
+}
+
+
+/* ---------- 日付部分 ---------- */
+
+.axis-labels-container {
+    position: relative;
+
+    width: 700px;
+    min-width: 700px;
+
+    height: 60px;
+
+    flex-shrink: 0;
+}
+
+
+/* ---------- 日付1個 ---------- */
+
+.axis-tick {
+    position: absolute;
+
+    top: 0;
+
+    width: 30px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    transform: translateX(-50%);
+}
+
+
+/* ---------- 日付の目盛り ---------- */
+
+.axis-tick::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    width: 1px;
+    height: 6px;
+
+    display: none;
+}
+
+
+/* ---------- 日付文字 ---------- */
+
+.axis-tick span {
+    display: block;
+
+    margin-top: 10px;
+    margin-left: 8px;
+
+    color: #596273;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    transform: rotate(45deg);
+
+    transform-origin: top left;
+}
+
+
+/* ---------- 今日の日付 ---------- */
+
+.axis-tick.is-today::before {
+    width: 2px;
+    height: 8px;
+
+    display: none;
+
+    background: #ef4444;
+}
+
+.axis-tick.is-today span {
+    color: #dc2626;
+
+    font-weight: 800;
+}
+
+
+/* ========================================
+   スマートフォン
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 14px;
+    }
+
+    h1 {
+        margin-bottom: 16px;
+        font-size: 19px;
+    }
+
+    .tabs {
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .tab-btn {
+        min-height: 34px;
+        padding: 6px 13px;
+
+        font-size: 12px;
+    }
+
+    .timeline-outer {
+        border-radius: 8px;
+    }
+
+    .timeline-grid {
+        padding-top: 10px;
+    }
+
+    .timeline-row {
+        height: 50px;
+    }
+
+    .site-name {
+        font-size: 12px;
+        padding: 0 10px;
+    }
+
+    .sale-bar {
+        height: 30px;
+
+        padding: 0 8px;
+
+        font-size: 11px;
+    }
+
+    .axis-labels-container {
+        height: 58px;
+    }
+
+    .axis-tick span {
+        font-size: 10px;
+    }
+}
